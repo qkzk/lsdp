@@ -1,0 +1,9 @@
+[package]
+name = "lsdp"
+version = "0.1.0"
+authors = ["qu3nt1n@gmail.com <qu3nt1n@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
