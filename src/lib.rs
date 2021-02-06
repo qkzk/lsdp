@@ -101,6 +101,15 @@ pub fn term_size() -> u16 {
     }
 }
 
+// format a vector of string into a desired wall of text
+pub fn column_formater(content: Vec<String>) {
+
+}
+
+pub fn stdout(text: String) {
+    println!("{}", text);
+}
+
 pub fn stdout(content: Vec<String>) {
     //let mut stdoutput = String::new();
     //for filename in content {
