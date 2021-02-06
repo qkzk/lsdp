@@ -73,21 +73,6 @@ pub fn maxsize(content: &Vec<String>) -> usize {
     })
 }
 
-//pub fn adapt_size(content: Vec<String>, max_string_size: usize) -> Vec<String> {
-    ////content.iter().map(|s| s
-                            //////.push(" ".repeat(max_string_size - s.chars().count()))
-        ////)
-        ////.collect()
-
-    //let fmt_content: Vec<String> = vec![];
-    //for filename in content {
-        //filename.push_str(" ".repeat(max_string_size - &filename.chars().count()));
-        //fmt_content.push(filename);
-
-    //}
-    //fmt_content
-//}
-//
 pub fn pad_filename(filename: &String, width: usize) -> String {
     String::from(format!("{:<width$}", filename, width=width))
 }
@@ -101,38 +86,32 @@ pub fn term_size() -> u16 {
     }
 }
 
-// format a vector of string into a desired wall of text
-pub fn column_formater(content: Vec<String>) {
 
-}
+pub fn pad_strings(content: Vec<String>, max_string_size: usize) -> Vec<String> {
 
-pub fn stdout(text: String) {
-    println!("{}", text);
-}
-
-pub fn stdout(content: Vec<String>) {
-    //let mut stdoutput = String::new();
-    //for filename in content {
-        //stdoutput.push_str(&filename);
-        //stdoutput.push_str("\t");
-    //}
-    let max_string_size = maxsize(&content) + 3;
-    let content_formatted: Vec<String> = content
+    content
         .iter()
         .map(|s| pad_filename(&s, max_string_size))
-        .collect();
+        .collect()
+}
+
+pub fn format_bloc(content_formatted: Vec<String>, max_string_size: usize) -> String {
 
     let max_string_size = max_string_size as u16;
     let max_item_per_line = term_size() / max_string_size;
-    let mut res = String::new();
+    let mut string_output = String::new();
     for (index, filename) in content_formatted.iter().enumerate() {
-        res.push_str(filename);
+        string_output.push_str(filename);
         if index as u16 % max_item_per_line == 0 {
-            res.push_str("\n");
+            string_output.push_str("\n");
         }
     }
-    println!("{}", res);
+    string_output
+}
 
-    //println!("{}", content_formatted.join(""));
-
+pub fn stdout(content: Vec<String>) {
+    let max_string_size = maxsize(&content) + 3;
+    let content_formatted = pad_strings(content, max_string_size);
+    let string_output = format_bloc(content_formatted, max_string_size);
+    println!("{}", string_output);
 }
