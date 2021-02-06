@@ -1,5 +1,5 @@
-use std::fs;
 use std::error::Error;
+use std::fs;
 
 #[derive(Debug)]
 pub struct Config {
@@ -24,10 +24,7 @@ impl Config {
         } else {
             let path = args[2].clone();
             //let hidd_str = args[1].clone();
-            Ok(Config {
-                path,
-                hidden: true,
-            })
+            Ok(Config { path, hidden: true })
         }
     }
 }
@@ -45,17 +42,21 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
                 if config.hidden || !thingname.starts_with(".") {
                     content.push(thingname);
                 }
-            },
+            }
             Err(e) => println!("Something went wrong {}", e),
         }
     }
 
-    let mut stdoutput = String::new();
-    for thingname in &content {
-        stdoutput.push_str(&thingname);
-        stdoutput.push_str(" ");
-    }
-    println!("{}", stdoutput);
+    stdout(&content);
 
     Ok(())
+}
+
+pub fn stdout(content: &Vec<String>) {
+    let mut stdoutput = String::new();
+    for thingname in content {
+        stdoutput.push_str(&thingname);
+        stdoutput.push_str("\t");
+    }
+    println!("{}", stdoutput);
 }
