@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fs;
-use terminal_size::{Width, Height, terminal_size};
+use terminal_size::{Width, terminal_size};
 
 //use std::path::Path;
 
@@ -36,7 +36,7 @@ impl Config {
     }
 }
 
-pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     //println!("run    - config:  {:?}", &config);
     let path = &config.path;
     //println!("run    - path: {}", &path);
@@ -78,8 +78,7 @@ pub fn pad_filename(filename: &String, width: usize) -> String {
 }
 
 pub fn term_size() -> u16 {
-    let size = terminal_size();
-    if let Some((Width(w), Height(_))) = size {
+    if let Some((Width(w), _)) = terminal_size(){
         w
     } else {
         80
