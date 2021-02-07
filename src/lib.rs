@@ -6,6 +6,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::{collections::HashMap, println};
 use terminal_size::{terminal_size, Width};
 use users::get_user_by_uid;
+use std::process;
 
 
 #[derive(Debug)]
@@ -89,28 +90,54 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     }
 }
 
+pub struct FileInfo {
+    pub filename: String,
+    pub file_size: String,
+    pub dir_symbol: String,
+    pub permissions: String,
+    pub owner: String,
+}
+
+impl FileInfo {
+    pub fn new(direntry: &DirEntry) -> Result<FileInfo, &'static str> {
+        let filename = extract_filename(&direntry);
+        let file_size = human_size(extract_file_size(&direntry));
+        let dir_symbol = extract_dir_symbol(&direntry);
+        let permissions = extract_permissions_string(&direntry);
+        let owner = extract_username(&direntry);
+
+        Ok(FileInfo {
+            filename,
+            file_size,
+            dir_symbol,
+            permissions,
+            owner,
+        } )
+    }
+}
+
 pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
     println!("{:?}", config);
     let path = &config.path;
-    let mut content: Vec<(String, String, String, String, String)> = vec![];
+    //let mut content: Vec<(String, String, String, String, String)> = vec![];
+    let mut content_file_info: Vec<FileInfo> = vec![];
     for entry in fs::read_dir(&path)? {
         match entry {
             Ok(direntry) => {
-                //let met = direntry.metadata()?;
                 let filename = extract_filename(&direntry);
                 if config.hidden || !filename.starts_with(".") {
-                    let file_size = human_size(extract_file_size(&direntry));
-                    let dir_symbol = extract_dir_symbol(&direntry);
-                    let permissions = extract_permissions_string(&direntry);
-                    let username = extract_username(&direntry);
-
-                    content.push((dir_symbol, permissions, filename, file_size, username));
+                    let file_info = FileInfo::new(&direntry).unwrap_or_else(|err| {
+                        eprintln!("Problem accessing file {} information: {}",
+                            filename, err);
+                        process::exit(1);
+                    });
+                    content_file_info.push(file_info);
                 }
             }
             Err(e) => println!("Something went wrong {}", e),
         }
     }
-    stdout_list(content);
+    stdout_list(content_file_info);
     Ok(())
 }
 
@@ -167,13 +194,17 @@ pub fn human_size(bytes: u64) -> String {
     human_size
 }
 
-pub fn stdout_list(content: Vec<(String, String, String, String, String)>) {
+pub fn stdout_list(content_file_info: Vec<FileInfo>) {
     //let first_line = "Permissions Size User    Date Modified  Name";
     //println!("{}", first_line);
-    for (dir_symbol, permissions, filename, file_size, username) in content.iter() {
+    for file_info in content_file_info.iter() {
         println!(
             "{}{} {} {} {}",
-            dir_symbol, permissions, file_size, username, filename
+            file_info.dir_symbol,
+            file_info.permissions,
+            file_info.file_size,
+            file_info.owner,
+            file_info.filename
         );
     }
 }
