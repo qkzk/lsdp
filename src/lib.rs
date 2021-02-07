@@ -133,7 +133,7 @@ pub fn extract_permissions_string(direntry: &DirEntry) -> String {
 }
 
 pub fn convert_octal_mode(mode: u32) -> String {
-    let rwx: Vec<&str> = vec!["---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"];
+    let rwx  = ["---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"];
     String::from(rwx[(mode & 7 as u32) as usize])
 }
 
