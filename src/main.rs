@@ -1,6 +1,8 @@
-use lsdp::Config;
+use lsdp::config::Config;
 use std::env;
 use std::process;
+
+//mod config;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

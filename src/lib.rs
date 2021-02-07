@@ -1,68 +1,12 @@
 use std::error::Error;
 use std::fs::read_dir;
 use std::process;
-use std::{collections::HashMap, println};
 
 mod bloc_format;
+pub mod config;
 mod extract;
 
-//pub use crate::extract;
-
-#[derive(Debug)]
-pub struct Config {
-    pub hidden: bool, // "-a"
-    pub list: bool,   // "-l"
-    pub path: String, // "/usr/bin"
-}
-impl Default for Config {
-    fn default() -> Self {
-        Config {
-            hidden: false,
-            list: false,
-            path: String::from("."),
-        }
-    }
-}
-
-impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        let vec_options: Vec<String> = vec![String::from("a"), String::from("l")];
-        //println!("Config - args: {:?}", &args);
-        if args.len() == 1 {
-            Ok(Config {
-                ..Default::default()
-            })
-        } else {
-            let mut map_options = HashMap::new();
-            let mut path = String::from(".");
-            for opt in vec_options.iter() {
-                map_options.insert(opt, false);
-            }
-
-            for arg in args[1..].iter() {
-                if arg.starts_with("-") {
-                    let option = String::from(&arg[1..]);
-                    let arg_characs: Vec<&str> = option.split("").collect();
-                    for option in vec_options.iter() {
-                        if arg_characs.contains(&&option[..]) {
-                            map_options.insert(option, true);
-                        }
-                    }
-                } else {
-                    path = String::from(arg);
-                }
-            }
-            Ok(Config {
-                hidden: map_options[&String::from("a")],
-                list: map_options[&String::from("l")],
-                path,
-                ..Default::default()
-            })
-        }
-    }
-}
-
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn run(config: config::Config) -> Result<(), Box<dyn Error>> {
     //println!("run    - config:  {:?}", &config);
     //println!("run    - path: {}", &path);
     match config.list {
@@ -71,7 +15,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     }
 }
 
-pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn display_list(config: config::Config) -> Result<(), Box<dyn Error>> {
     //println!("{:?}", config);
     let path = &config.path;
     let mut content_file_info: Vec<extract::FileInfo> = vec![];
@@ -94,7 +38,7 @@ pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn display_column(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn display_column(config: config::Config) -> Result<(), Box<dyn Error>> {
     let path = &config.path;
     let mut content: Vec<String> = vec![];
     for entry in read_dir(&path)? {
