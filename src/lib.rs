@@ -7,7 +7,6 @@ use std::{collections::HashMap, println};
 use terminal_size::{terminal_size, Width};
 use users::get_user_by_uid;
 
-//use std::path::Path;
 
 #[derive(Debug)]
 pub struct Config {
@@ -81,7 +80,7 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    println!("run    - config:  {:?}", &config);
+    //println!("run    - config:  {:?}", &config);
     //println!("run    - path: {}", &path);
 
     match config.list {
@@ -93,14 +92,14 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
     println!("{:?}", config);
     let path = &config.path;
-    let mut content: Vec<(String, String, String, u64, String)> = vec![];
+    let mut content: Vec<(String, String, String, String, String)> = vec![];
     for entry in fs::read_dir(&path)? {
         match entry {
             Ok(direntry) => {
                 //let met = direntry.metadata()?;
                 let filename = extract_filename(&direntry);
                 if config.hidden || !filename.starts_with(".") {
-                    let file_size = extract_file_size(&direntry);
+                    let file_size = human_size(extract_file_size(&direntry));
                     let dir_symbol = extract_dir_symbol(&direntry);
                     let permissions = extract_permissions_string(&direntry);
                     let username = extract_username(&direntry);
@@ -120,9 +119,7 @@ pub fn extract_filename(direntry: &DirEntry) -> String {
 }
 
 pub fn extract_permissions_string(direntry: &DirEntry) -> String {
-    let mut mode = metadata(direntry.path()).unwrap().permissions().mode() &  511;
-
-    mode = mode & 511;
+    let mode = metadata(direntry.path()).unwrap().permissions().mode() & 511;
 
     let mode_o = mode >> 6;
     let mode_g = (mode >> 3) & 7;
@@ -160,9 +157,19 @@ pub fn extract_file_size(direntry: &DirEntry) -> u64 {
     direntry.path().metadata().unwrap().len()
 }
 
-pub fn stdout_list(content: Vec<(String, String, String, u64, String)>) {
-    let first_line = "Permissions Size User    Date Modified  Name";
-    println!("{}", first_line);
+pub fn human_size(bytes: u64) -> String {
+    let size = ["", "k", "M", "G", "T", "P", "E", "Z", "Y"];
+    let factor = (bytes.to_string().chars().count() as u64 - 1) / 3  as u64;
+    let human_size = format!("{:>3}{:<1}",
+                bytes / (1204 as u64).pow(factor as u32),
+                size[factor as usize]
+            );
+    human_size
+}
+
+pub fn stdout_list(content: Vec<(String, String, String, String, String)>) {
+    //let first_line = "Permissions Size User    Date Modified  Name";
+    //println!("{}", first_line);
     for (dir_symbol, permissions, filename, file_size, username) in content.iter() {
         println!(
             "{}{} {} {} {}",
