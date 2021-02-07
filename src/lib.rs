@@ -1,10 +1,10 @@
 use std::error::Error;
 use std::fs::read_dir;
-use std::{collections::HashMap, println};
 use std::process;
+use std::{collections::HashMap, println};
 
-mod extract;
 mod bloc_format;
+mod extract;
 
 //pub use crate::extract;
 
@@ -71,7 +71,6 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     }
 }
 
-
 pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
     //println!("{:?}", config);
     let path = &config.path;
@@ -82,8 +81,7 @@ pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
                 let filename = extract::extract_filename(&direntry);
                 if config.hidden || !filename.starts_with(".") {
                     let file_info = extract::FileInfo::new(&direntry).unwrap_or_else(|err| {
-                        eprintln!("Problem accessing file {} information: {}",
-                            filename, err);
+                        eprintln!("Problem accessing file {} information: {}", filename, err);
                         process::exit(1);
                     });
                     content_file_info.push(file_info);

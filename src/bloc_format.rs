@@ -1,6 +1,5 @@
 use terminal_size::{terminal_size, Width};
 
-
 pub fn maxsize(content: &Vec<String>) -> usize {
     let content_count: Vec<usize> = content.iter().map(|x| x.chars().count()).collect();
     content_count.iter().fold(
@@ -46,4 +45,3 @@ pub fn format_bloc(content_formatted: Vec<String>, max_string_size: usize) -> St
     }
     string_output
 }
-
