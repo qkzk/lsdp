@@ -120,7 +120,7 @@ pub fn extract_filename(direntry: &DirEntry) -> String {
 }
 
 pub fn extract_permissions_string(direntry: &DirEntry) -> String {
-    let mut mode = metadata(direntry.path()).unwrap().permissions().mode();
+    let mut mode = metadata(direntry.path()).unwrap().permissions().mode() &  511;
 
     mode = mode & 511;
 
@@ -136,18 +136,8 @@ pub fn extract_permissions_string(direntry: &DirEntry) -> String {
 }
 
 pub fn convert_octal_mode(mode: u32) -> String {
-    let rwx: Vec<String> = vec![
-        String::from("---"),
-        String::from("--x"),
-        String::from("-w-"),
-        String::from("-wx"),
-        String::from("r--"),
-        String::from("r-x"),
-        String::from("rw-"),
-        String::from("rwx"),
-    ];
-
-    String::from(&rwx[(mode & 7 as u32) as usize])
+    let rwx: Vec<&str> = vec!["---", "--x", "-w-", "-wx", "r--", "r-x", "rw-", "rwx"];
+    String::from(rwx[(mode & 7 as u32) as usize])
 }
 
 pub fn extract_username(direntry: &DirEntry) -> String {
