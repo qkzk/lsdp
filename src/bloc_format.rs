@@ -1,5 +1,7 @@
 use terminal_size::{terminal_size, Width};
 
+pub const MAX_TERM_SIZE: u16 = 80;
+
 pub fn maxsize(content: &Vec<String>) -> usize {
     let content_count: Vec<usize> = content.iter().map(|x| x.chars().count()).collect();
     content_count.iter().fold(
@@ -22,7 +24,7 @@ pub fn term_size() -> u16 {
     if let Some((Width(w), _)) = terminal_size() {
         w
     } else {
-        80
+        MAX_TERM_SIZE
     }
 }
 
