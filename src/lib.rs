@@ -28,18 +28,6 @@ impl Config {
     pub fn new(args: &[String]) -> Result<Config, &'static str> {
         let vec_options: Vec<String> = vec![String::from("a"), String::from("l")];
         //println!("Config - args: {:?}", &args);
-        /*
-         * lsdp -la path
-         * lsdp -la
-         * lsdp -l -a
-         * lsdp -l -a path
-         * lsdp path
-         * lsdp -a -l path
-         *
-         *
-         * Si un argument : pas d'option, pas de path
-         * Si
-         */
         if args.len() == 1 {
             Ok(Config {
                 ..Default::default()
@@ -54,13 +42,9 @@ impl Config {
             for arg in args[1..].iter() {
                 if arg.starts_with("-") {
                     let option = String::from(&arg[1..]);
-                    //println!("{}", option);
                     let arg_characs: Vec<&str> = option.split("").collect();
-                    //println!("characs : {:?}", arg_characs);
                     for option in vec_options.iter() {
-                        //println!("option : {}", option);
                         if arg_characs.contains(&&option[..]) {
-                            //println!("found option {}", option);
                             map_options.insert(option, true);
                         }
                     }
@@ -68,7 +52,6 @@ impl Config {
                     path = String::from(arg);
                 }
             }
-            //println!("map options {:?}", map_options);
             Ok(Config {
                 hidden: map_options[&String::from("a")],
                 list: map_options[&String::from("l")],
@@ -82,7 +65,6 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     //println!("run    - config:  {:?}", &config);
     //println!("run    - path: {}", &path);
-
     match config.list {
         true => display_list(config),
         false => display_column(config),
@@ -93,7 +75,6 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 pub fn display_list(config: Config) -> Result<(), Box<dyn Error>> {
     //println!("{:?}", config);
     let path = &config.path;
-    //let mut content: Vec<(String, String, String, String, String)> = vec![];
     let mut content_file_info: Vec<extract::FileInfo> = vec![];
     for entry in read_dir(&path)? {
         match entry {
@@ -136,8 +117,6 @@ pub fn display_column(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn stdout_list(content_file_info: Vec<extract::FileInfo>) {
-    //let first_line = "Permissions Size User    Date Modified  Name";
-    //println!("{}", first_line);
     for file_info in content_file_info.iter() {
         println!(
             "{}{} {} {} {}",
