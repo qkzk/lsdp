@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::env;
 
-
 #[derive(Debug)]
 pub struct Config {
     pub hidden: bool, // "-a"
@@ -20,9 +19,10 @@ impl Default for Config {
 
 impl Config {
     pub fn new(args: env::Args) -> Result<Config, &'static str> {
-
         match args.len() {
-            1 => Ok(Config{ ..Default::default() }),
+            1 => Ok(Config {
+                ..Default::default()
+            }),
             _ => {
                 let (path, map_options) = parse_args(args);
                 Ok(Config {
@@ -36,7 +36,7 @@ impl Config {
     }
 }
 
-pub fn default_map_options() -> ([String;2], HashMap<String, bool>) {
+pub fn default_map_options() -> ([String; 2], HashMap<String, bool>) {
     let arr_options: [String; 2] = [String::from("a"), String::from("l")];
     let mut map_options = HashMap::new();
     for opt in arr_options.iter() {
@@ -51,11 +51,9 @@ pub fn parse_args(mut args: env::Args) -> (String, HashMap<String, bool>) {
     args.next();
     for arg in args {
         if arg.starts_with("-") {
-            let option = String::from(&arg[1..]);
-            let arg_characs: Vec<&str> = option.split("").collect();
-            for carac in &arg_characs {
-                if arr_options.contains(&String::from(*carac)) {
-                    map_options.insert(String::from(*carac), true);
+            for opt in &arr_options {
+                if arg.contains(opt) {
+                    map_options.insert(String::from(opt), true);
                 }
             }
         } else {
