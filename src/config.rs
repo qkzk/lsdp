@@ -25,7 +25,6 @@ impl Config {
             1 => Ok(Config{ ..Default::default() }),
             _ => {
                 let (path, map_options) = parse_args(args);
-                println!("{:?}, {}", map_options, path);
                 Ok(Config {
                     hidden: map_options[&String::from("a")],
                     list: map_options[&String::from("l")],
@@ -56,7 +55,6 @@ pub fn parse_args(mut args: env::Args) -> (String, HashMap<String, bool>) {
             let arg_characs: Vec<&str> = option.split("").collect();
             for carac in &arg_characs {
                 if arr_options.contains(&String::from(*carac)) {
-                    println!("map contains {}", &carac);
                     map_options.insert(String::from(*carac), true);
                 }
             }
