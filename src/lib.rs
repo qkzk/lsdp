@@ -18,7 +18,7 @@ pub fn run(config: config::Config) -> Result<(), Box<dyn Error>> {
 pub fn display_list(config: config::Config) -> Result<(), Box<dyn Error>> {
     //println!("{:?}", config);
     let path = &config.path;
-    let mut content_file_info: Vec<extract::FileInfo> = vec![];
+    let mut content: Vec<extract::FileInfo> = vec![];
     for entry in read_dir(&path)? {
         match entry {
             Ok(direntry) => {
@@ -28,13 +28,13 @@ pub fn display_list(config: config::Config) -> Result<(), Box<dyn Error>> {
                         eprintln!("Problem accessing file {} information: {}", filename, err);
                         process::exit(1);
                     });
-                    content_file_info.push(file_info);
+                    content.push(file_info);
                 }
             }
             Err(e) => println!("Something went wrong {}", e),
         }
     }
-    stdout_list(content_file_info);
+    stdout_list(content);
     Ok(())
 }
 
@@ -58,8 +58,8 @@ pub fn display_column(config: config::Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn stdout_list(content_file_info: Vec<extract::FileInfo>) {
-    for file_info in content_file_info.iter() {
+pub fn stdout_list(content: Vec<extract::FileInfo>) {
+    for file_info in content.iter() {
         println!(
             "{}{} {} {} {}",
             file_info.dir_symbol,

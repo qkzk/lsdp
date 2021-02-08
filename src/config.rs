@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::env;
+
 
 #[derive(Debug)]
 pub struct Config {
@@ -17,39 +19,45 @@ impl Default for Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        //println!("Config - args: {:?}", &args);
-        if args.len() == 1 {
-            Ok(Config {
-                ..Default::default()
-            })
-        } else {
-            let (path, map_options) = parse_args(&args);
-            Ok(Config {
-                hidden: map_options[&String::from("a")],
-                list: map_options[&String::from("l")],
-                path,
-                ..Default::default()
-            })
+    pub fn new(args: env::Args) -> Result<Config, &'static str> {
+
+        match args.len() {
+            1 => Ok(Config{ ..Default::default() }),
+            _ => {
+                let (path, map_options) = parse_args(args);
+                println!("{:?}, {}", map_options, path);
+                Ok(Config {
+                    hidden: map_options[&String::from("a")],
+                    list: map_options[&String::from("l")],
+                    path,
+                    ..Default::default()
+                })
+            }
         }
     }
 }
 
-pub fn parse_args(args: &[String]) -> (String, HashMap<String, bool>) {
-    let vec_options: Vec<String> = vec![String::from("a"), String::from("l")];
+pub fn default_map_options() -> ([String;2], HashMap<String, bool>) {
+    let arr_options: [String; 2] = [String::from("a"), String::from("l")];
     let mut map_options = HashMap::new();
-    let mut path = String::from(".");
-    for opt in vec_options.iter() {
+    for opt in arr_options.iter() {
         map_options.insert(String::from(opt), false);
     }
+    (arr_options, map_options)
+}
 
-    for arg in args[1..].iter() {
+pub fn parse_args(mut args: env::Args) -> (String, HashMap<String, bool>) {
+    let mut path = String::from(".");
+    let (arr_options, mut map_options) = default_map_options();
+    args.next();
+    for arg in args {
         if arg.starts_with("-") {
             let option = String::from(&arg[1..]);
             let arg_characs: Vec<&str> = option.split("").collect();
-            for option in vec_options.iter() {
-                if arg_characs.contains(&&option[..]) {
-                    map_options.insert(String::from(option), true);
+            for carac in &arg_characs {
+                if arr_options.contains(&String::from(*carac)) {
+                    println!("map contains {}", &carac);
+                    map_options.insert(String::from(*carac), true);
                 }
             }
         } else {
