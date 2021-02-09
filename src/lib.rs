@@ -1,6 +1,6 @@
-use std::error::Error;
 use std::fs::read_dir;
 use std::process;
+use std::error::Error;
 
 mod bloc_format;
 pub mod config;
@@ -15,46 +15,34 @@ pub fn run(config: config::Config) -> Result<(), Box<dyn Error>> {
     }
 }
 
+pub fn display_error(msg: &str) {
+    eprintln!("Problem accessing file information: {}", msg);
+    process::exit(1);
+}
+
 pub fn display_list(config: config::Config) -> Result<(), Box<dyn Error>> {
-    //println!("{:?}", config);
-    let path = &config.path;
-    let mut content: Vec<extract::FileInfo> = vec![];
-    for entry in read_dir(&path)? {
-        match entry {
-            Ok(direntry) => {
-                let filename = extract::extract_filename(&direntry);
-                if config.hidden || !filename.starts_with(".") {
-                    let file_info = extract::FileInfo::new(&direntry).unwrap_or_else(|err| {
-                        eprintln!("Problem accessing file {} information: {}", filename, err);
-                        process::exit(1);
-                    });
-                    content.push(file_info);
-                }
-            }
-            Err(e) => println!("Something went wrong {}", e),
-        }
-    }
-    stdout_list(content);
+    stdout_list(
+        read_dir(&config.path)?
+            .map(|entry| {
+                extract::FileInfo::new(&entry.unwrap()).unwrap_or_else(|err| {
+                    eprintln!("Problem accessing file information: {}", err);
+                    process::exit(1);
+                })
+            })
+            .filter(|fileinfo| config.hidden || !fileinfo.filename.starts_with("."))
+            .collect(),
+    );
+
     Ok(())
 }
 
 pub fn display_column(config: config::Config) -> Result<(), Box<dyn Error>> {
-    let path = &config.path;
-    let mut content: Vec<String> = vec![];
-    for entry in read_dir(&path)? {
-        match entry {
-            Ok(direntry) => {
-                let filename = extract::extract_filename(&direntry);
-                if config.hidden || !filename.starts_with(".") {
-                    content.push(filename);
-                }
-            }
-            Err(e) => println!("Something went wrong {}", e),
-        }
-    }
-
-    stdout(content);
-
+    stdout(
+        read_dir(&config.path)?
+            .map(|entry| extract::extract_filename(&entry.unwrap()))
+            .filter(|filename| config.hidden || !filename.starts_with("."))
+            .collect(),
+    );
     Ok(())
 }
 
